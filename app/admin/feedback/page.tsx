@@ -48,7 +48,15 @@ export default function AdminFeedbackPage() {
       });
 
       const result = await response.json();
-      setAiSummary(result.summary || 'Unable to generate analysis at this time.');
+
+      // Formats the response cleanly whether it returns a summary string or JSON sentiment data
+      const summaryText = typeof result === 'string' 
+        ? result 
+        : result.summary 
+        ? result.summary 
+        : `Overall Sentiment: ${result.sentiment}\n\nKey Takeaways:\n• ` + (result.keyTakeaways || []).join('\n• ');
+
+      setAiSummary(summaryText || 'Unable to generate analysis at this time.');
     } catch {
       setAiSummary('Failed to trigger AI sentiment analysis.');
     } finally {

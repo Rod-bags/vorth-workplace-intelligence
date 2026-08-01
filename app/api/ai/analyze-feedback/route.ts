@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { analyzeFeedback } from '@/lib/ai';
 
 export async function POST(req: Request) {
   try {
@@ -11,52 +12,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // Extract text content from feedback items
-    const feedbackTexts = feedback
-      .map((item: { category: string; message: string }, idx: number) => 
-        `[${idx + 1}] Category: ${item.category}\nMessage: ${item.message}`
-      )
-      .join('\n\n');
+    // Handle string array or single feedback string passed to endpoint
+    const feedbackText = Array.isArray(feedback)
+      ? feedback
+          .map((item: any, idx: number) =>
+            typeof item === 'string'
+              ? `[${idx + 1}] ${item}`
+              : `[${idx + 1}] Category: ${item.category || 'General'}\nMessage: ${item.message || item.content}`
+          )
+          .join('\n\n')
+      : String(feedback);
 
-    // Call OpenAI API (or your preferred LLM endpoint)
-    const apiKey = process.env.OPENAI_API_KEY;
+    // Delegate analysis to lib/ai.ts helper
+    const aiAnalysis = await analyzeFeedback(feedbackText);
 
-    if (!apiKey) {
-      // Fallback response if API Key is not yet configured in .env.local
-      return NextResponse.json({
-        summary: `Analyzed ${feedback.length} feedback item(s).\n\nKey Observation: Employees expressed concerns around workflow structure and workplace communication.\n\nRecommendation: Schedule a team sync to address workload distribution and team tools.`,
-      });
-    }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are an expert HR and organizational analyst. Analyze the following anonymous employee feedback list. Provide a concise executive summary highlighting: 1. Main Pain Points, 2. Positive Sentiment, and 3. Actionable Next Steps.',
-          },
-          {
-            role: 'user',
-            content: feedbackTexts,
-          },
-        ],
-        temperature: 0.5,
-      }),
-    });
-
-    const aiData = await response.json();
-    const summary = aiData.choices[0]?.message?.content || 'Analysis completed with no output.';
-
-    return NextResponse.json({ summary });
+    return NextResponse.json(aiAnalysis);
   } catch (error) {
-    console.error('AI Analysis Error:', error);
-    return NextResponse.json({ error: 'Failed to complete AI analysis' }, { status: 500 });
+    console.error('AI Analysis Route Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to complete AI analysis' },
+      { status: 500 }
+    );
   }
 }

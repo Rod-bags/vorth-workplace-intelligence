@@ -47,10 +47,22 @@ export default async function LoginPage({
                 placeholder="you@company.com"
               />
             </div>
+            
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Password
+                </label>
+                
+                {/* Integrated Forgot Password Link */}
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
               <input
                 id="password"
                 name="password"

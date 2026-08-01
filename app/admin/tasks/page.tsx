@@ -61,7 +61,7 @@ export default function AdminTasksPage() {
       description: description || null,
       assigned_to: assignedTo || null,
       status,
-      due_date: dueDate ? new Date(dueDate).toISOString() : null,
+      due_date: dueDate ? dueDate : null,
     };
 
     if (editingTask) {
