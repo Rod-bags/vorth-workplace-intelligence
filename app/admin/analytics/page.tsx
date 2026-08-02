@@ -61,7 +61,7 @@ export default function AdminAnalyticsPage() {
         { data: tasks },
         { data: feedback }
       ] = await Promise.all([
-        supabase.from('profiles').select('department'),
+        supabase.from('profiles').select('department, role'),
         supabase.from('tasks').select('status'),
         supabase.from('feedback').select('id'),
       ]);

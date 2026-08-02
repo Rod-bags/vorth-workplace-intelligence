@@ -19,6 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    // 1. Authenticate user
     const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -31,19 +32,23 @@ export default function LoginPage() {
     }
 
     if (user) {
-      // Fetch user profile to read role
+      // 2. Fetch role from database profiles table
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+      // 3. Determine role (check database first, then fallback to user_metadata)
+      const userRole = profile?.role || user.user_metadata?.role;
 
       setLoading(false);
 
-      if (profile?.role === 'admin') {
-        router.push('/admin/analytics');
+      // 4. Redirect based on role
+      if (userRole === 'admin') {
+        router.push('/admin/analytics'); // Or /admin/dashboard depending on your route
       } else {
-        router.push('/employee/dashboard');
+        router.push('/employee/tasks');
       }
     }
   };
@@ -100,8 +105,8 @@ export default function LoginPage() {
 
         <p className="text-sm text-center text-gray-600 dark:text-gray-400">
           Don't have an account?{' '}
-          <Link href="/signup" className="text-blue-600 hover:underline">
-            Sign up
+          <Link href="/register" className="text-blue-600 hover:underline font-medium">
+            Register
           </Link>
         </p>
       </div>
