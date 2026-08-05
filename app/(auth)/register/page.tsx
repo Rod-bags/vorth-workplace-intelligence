@@ -19,7 +19,6 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Step 1: Send Signup request & dispatch Verification Code
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -29,6 +28,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/login`,
         data: {
           name,
           role,
@@ -44,11 +44,9 @@ export default function SignUpPage() {
       return;
     }
 
-    // Move to code verification step
     setStep('verify');
   };
 
-  // Step 2: Verify the 6-Digit Email Code
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -68,7 +66,6 @@ export default function SignUpPage() {
     }
 
     if (session?.user) {
-      // Create/Ensure profile row matches selected role
       await supabase.from('profiles').upsert({
         id: session.user.id,
         name,
@@ -77,7 +74,6 @@ export default function SignUpPage() {
         department,
       });
 
-      // Redirect dynamically based on role
       if (role === 'admin') {
         router.push('/admin/analytics');
       } else {
@@ -180,7 +176,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               {loading ? 'Sending Code...' : 'Send Verification Code'}
             </button>
@@ -205,7 +201,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               {loading ? 'Verifying...' : 'Verify Code & Sign In'}
             </button>

@@ -46,7 +46,7 @@ export default function LoginPage() {
 
       // 4. Redirect based on role
       if (userRole === 'admin') {
-        router.push('/admin/analytics'); // Or /admin/dashboard depending on your route
+        router.push('/admin/analytics');
       } else {
         router.push('/employee/tasks');
       }
@@ -82,9 +82,17 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               required

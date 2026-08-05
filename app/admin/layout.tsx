@@ -61,12 +61,22 @@ export default function AdminLayout({
           </nav>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="w-full text-left px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-        >
-          🚪 Sign Out
-        </button>
+        {/* Footer Actions */}
+        <div className="space-y-1 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <Link
+            href="/reset-password"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+          >
+            🔑 Reset Password
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+          >
+            🚪 Sign Out
+          </button>
+        </div>
       </aside>
 
       {/* Main Admin Content View */}
