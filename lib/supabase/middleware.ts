@@ -31,21 +31,30 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // Authenticate user session
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
-  // Protected route conditions
-  const isEmployeeRoute = pathname.startsWith('/employee');
-  const isAdminRoute = pathname.startsWith('/admin');
+  // List of public routes accessible without logging in
+  const isPublicRoute =
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname === '/forgot-password';
 
-  // 1. Redirect unauthenticated users trying to access protected routes
-  if (!user && (isEmployeeRoute || isAdminRoute)) {
+  // 1. If user is NOT logged in and tries to access ANY protected route -> Send to /login
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    url.searchParams.set('error', 'Please log in to access this page.');
+    return NextResponse.redirect(url);
+  }
+
+  // 2. If user IS logged in and tries to go back to /login or /signup -> Send to dashboard
+  if (user && isPublicRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/employee/dashboard';
     return NextResponse.redirect(url);
   }
 
@@ -55,11 +64,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder assets
+     * Match all request paths except static files, images, and favicons
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

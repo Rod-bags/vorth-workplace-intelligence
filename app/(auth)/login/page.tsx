@@ -48,7 +48,7 @@ export default function LoginPage() {
       if (userRole === 'admin') {
         router.push('/admin/analytics');
       } else {
-        router.push('/employee/tasks');
+        router.push('/employee/dashboard');
       }
     }
   };
@@ -58,7 +58,7 @@ export default function LoginPage() {
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm max-w-md w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Log in to access your dashboard</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Log in to access your workspace portal</p>
         </div>
 
         {error && (
@@ -78,6 +78,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              placeholder="you@company.com"
             />
           </div>
 
@@ -99,13 +100,14 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              placeholder="••••••••"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Logging in...' : 'Sign In'}
           </button>
@@ -113,8 +115,8 @@ export default function LoginPage() {
 
         <p className="text-sm text-center text-gray-600 dark:text-gray-400">
           Don't have an account?{' '}
-          <Link href="/register" className="text-blue-600 hover:underline font-medium">
-            Register
+          <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+            Sign up
           </Link>
         </p>
       </div>
