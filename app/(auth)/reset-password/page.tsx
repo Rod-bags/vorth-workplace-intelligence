@@ -1,25 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const supabase = createClient();
-  
-  const [currentPassword, setCurrentPassword] = useState('');
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // Visibility toggles state
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Capture the session automatically when the user lands via email link
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setError(null);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +50,6 @@ export default function ResetPasswordPage() {
 
     const { error: updateError } = await supabase.auth.updateUser({
       password: password,
-      current_password: currentPassword,
     });
 
     setLoading(false);
@@ -62,7 +70,7 @@ export default function ResetPasswordPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Set New Password</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Please enter your current password and your new password below.
+            Please enter your new password below.
           </p>
         </div>
 
@@ -79,31 +87,6 @@ export default function ResetPasswordPage() {
         )}
 
         <form onSubmit={handleUpdatePassword} className="space-y-4">
-          {/* Current Password Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Current Password
-            </label>
-            <div className="relative">
-              <input
-                type={showCurrentPassword ? 'text' : 'password'}
-                required
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm"
-              >
-                {showCurrentPassword ? '🙈' : '👁️'}
-              </button>
-            </div>
-          </div>
-
-          {/* New Password Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               New Password
@@ -121,14 +104,13 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
               >
                 {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
           </div>
 
-          {/* Confirm Password Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Confirm New Password
@@ -146,7 +128,7 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
               >
                 {showConfirmPassword ? '🙈' : '👁️'}
               </button>

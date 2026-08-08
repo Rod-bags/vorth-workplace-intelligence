@@ -17,14 +17,15 @@ export default function ForgotPasswordPage() {
     setMessage(null);
     setError(null);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    // Redirect directly to reset-password to bypass the auth callback route
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
     setLoading(false);
 
-    if (error) {
-      setError(error.message);
+    if (resetError) {
+      setError(resetError.message);
     } else {
       setMessage('Password reset link sent! Check your inbox.');
     }
@@ -70,7 +71,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Sending Link...' : 'Send Reset Link'}
           </button>
